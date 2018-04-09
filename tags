@@ -1,0 +1,63 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+10	mod_phdf5.f90	/^    10 continue$/;"	l	subroutine:prepare_output1d	file:
+block1d	mod_blocks.f90	/^  type :: block1d$/;"	t	module:mod_blocks
+block2d	mod_blocks.f90	/^  type :: block2d$/;"	t	module:mod_blocks
+block3d	mod_blocks.f90	/^  type :: block3d$/;"	t	module:mod_blocks
+blocksize	mod_blocks.f90	/^    integer(4) :: blocksize /;"	k	type:block1d
+blocksize	mod_blocks.f90	/^    integer(4) :: blocksize /;"	k	type:block2d
+blocksize	mod_blocks.f90	/^    integer(4), dimension(3) :: blocksize /;"	k	type:block3d
+blocksize_	test.f90	/^  integer :: nblocks_, blocksize_,/;"	v	program:main
+dataset_id	test.f90	/^  integer(hid_t) :: file_id, dataset_id$/;"	v	program:main
+dcontent	mod_blocks.f90	/^    real(8), allocatable :: dcontent(/;"	k	type:block1d
+dcontent	mod_blocks.f90	/^    real(8), allocatable :: dcontent(/;"	k	type:block2d
+file_id	test.f90	/^  integer(hid_t) :: file_id,/;"	v	program:main
+finalize_output1d	mod_phdf5.f90	/^  subroutine finalize_output1d(/;"	s	module:mod_phdf5
+finalize_output_global	mod_phdf5.f90	/^  subroutine finalize_output_global(/;"	s	module:mod_phdf5
+fname	test.f90	/^  character(1024) :: fname$/;"	v	program:main
+get_block1d	mod_blocks.f90	/^  subroutine get_block1d(/;"	s	module:mod_blocks
+groupname	test.f90	/^  character(1024) :: path, groupname$/;"	v	program:main
+id	mod_blocks.f90	/^    integer(4) :: id /;"	k	type:block1d
+id	mod_blocks.f90	/^    integer(4) :: id /;"	k	type:block3d
+id	mod_blocks.f90	/^    integer(4), dimension(2) :: id /;"	k	type:block2d
+il	mod_blocks.f90	/^    integer(4) :: il,/;"	k	type:block1d
+il	mod_blocks.f90	/^    integer(4) :: il,/;"	k	type:block2d
+iu	mod_blocks.f90	/^    integer(4) :: il, iu /;"	k	type:block1d
+iu	mod_blocks.f90	/^    integer(4) :: il, iu,/;"	k	type:block2d
+jl	mod_blocks.f90	/^    integer(4) :: il, iu, jl,/;"	k	type:block2d
+ju	mod_blocks.f90	/^    integer(4) :: il, iu, jl, ju /;"	k	type:block2d
+k	test.f90	/^  integer :: k$/;"	v	program:main
+k1l	mod_blocks.f90	/^    integer(4) :: k1l,/;"	k	type:block2d
+k1u	mod_blocks.f90	/^    integer(4) :: k1l, k1u,/;"	k	type:block2d
+k2l	mod_blocks.f90	/^    integer(4) :: k1l, k1u, k2l,/;"	k	type:block2d
+k2u	mod_blocks.f90	/^    integer(4) :: k1l, k1u, k2l, k2u /;"	k	type:block2d
+kl	mod_blocks.f90	/^    integer(4) :: kl,/;"	k	type:block1d
+kl	mod_blocks.f90	/^    integer(4) :: kl,/;"	k	type:block3d
+ku	mod_blocks.f90	/^    integer(4) :: kl, ku /;"	k	type:block1d
+ku	mod_blocks.f90	/^    integer(4) :: kl, ku /;"	k	type:block3d
+main	test.f90	/^program main$/;"	p
+matsize_	test.f90	/^  integer :: nblocks_, blocksize_, matsize_$/;"	v	program:main
+mod_blocks	mod_blocks.f90	/^module mod_blocks$/;"	m
+mod_phdf5	mod_phdf5.f90	/^module mod_phdf5$/;"	m
+nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block1d
+nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block2d
+nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block3d
+nblocks_	test.f90	/^  integer :: nblocks_,/;"	v	program:main
+nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block1d
+nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block2d
+nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block3d
+offset	mod_blocks.f90	/^    integer(4) :: offset /;"	k	type:block1d
+offset	mod_blocks.f90	/^    integer(4), dimension(2) :: offset /;"	k	type:block2d
+path	test.f90	/^  character(1024) :: path,/;"	v	program:main
+prepare_output1d	mod_phdf5.f90	/^  subroutine prepare_output1d(/;"	s	module:mod_phdf5
+prepare_output_global	mod_phdf5.f90	/^  subroutine prepare_output_global(/;"	s	module:mod_phdf5
+put_block1d	mod_blocks.f90	/^  subroutine put_block1d(/;"	s	module:mod_blocks
+testblock	test.f90	/^  type(block1d) :: testblock$/;"	v	program:main
+write_block_d	mod_phdf5.f90	/^  subroutine write_block_d(/;"	s	module:mod_phdf5
+zcontent	mod_blocks.f90	/^    complex(8), allocatable :: zcontent(/;"	k	type:block1d
+zcontent	mod_blocks.f90	/^    complex(8), allocatable :: zcontent(/;"	k	type:block2d
+zcontent	mod_blocks.f90	/^    complex(8), allocatable :: zcontent(/;"	k	type:block3d

@@ -1,39 +1,45 @@
 module mod_phdf5
-
-  public prepare_output_global
-  public finalize_output_global
-  public prepare_output1d
-  public finalize_ouput1d
-  public put_block1d
-  public get_block1d
+  interface phdf5_write
+    module procedure phdf5_write_d, &
+        &            phdf5_write_z
+  end interface
+  interface phdf5_read
+    module procedure phdf5_read_d, &
+        &            phdf5_read_z
+  end interface
+  public phdf5_initialize
+  public phdf5_finalize
+  public phdf5_setup
+  public phdf5_cleanup
 contains
 
 !-------------------------------------------------------------------------------
-  subroutine prepare_output_global(fname,file_id)
+  subroutine phdf5_initialize(fname,file_id)
     use hdf5
     implicit none
     character(1024), intent(in) :: fname
     integer(hid_t), intent(out) :: file_id
     ! local variables
     integer :: ierr
-
+    call h5open_f(ierr)
     call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr)
   end subroutine
 
 !-------------------------------------------------------------------------------
-  subroutine finalize_output_global(file_id)
+  subroutine phdf5_finalize(file_id)
     use hdf5
     implicit none
     integer(hid_t), intent(in) :: file_id
     ! local variable
     integer :: ierr
 
-    call h5fclose(file_id,ierr)
+    call h5fclose_f(file_id,ierr)
+    call h5close_f(ierr)
   
   end subroutine 
 
 !-------------------------------------------------------------------------------
-  subroutine prepare_output1d(dims,fcomplex,dname,path,file_id,dataset_id)
+  subroutine phdf5_setup(dims,fcomplex,dname,path,file_id,dataset_id)
     use hdf5
     implicit none
     integer, intent(in) :: dims
@@ -51,11 +57,11 @@ contains
     ! if the dataset represents complex data, create 2D array
     if (fcomplex) then
       ndims_=2
-      allocate(dims_(ndims))
+      allocate(dims_(ndims_))
       dims_=(/2, dims/)
     else
       ndims_=1
-      allocate(dims_(ndims))
+      allocate(dims_(ndims_))
       dims_(1)=dims
     end if
     ! create the dataspace
@@ -87,14 +93,14 @@ contains
     return
     10 continue
     write(*,'(A)')trim(errmsg)
-    write(*,'("  ndims : ",I4)')ndims
+    write(*,'("  ndims : ",I4)')ndims_
     write(*,'("  fname : ",A)')trim(dname)
     write(*,'("  path  : ",A)')trim(path)
     stop
   end subroutine
   
 !-------------------------------------------------------------------------------
-  subroutine finalize_output1d(dataset_id)
+  subroutine phdf5_cleanup(dataset_id)
     use hdf5
     implicit none
     integer(hid_t), intent(in) :: dataset_id
@@ -102,92 +108,151 @@ contains
     integer :: ierr
 
     call h5dclose_f(dataset_id,ierr)
-
   end subroutine
 
 !-----------------------------------------------------------------------------
-  subroutine put_block1d(in1d,fcomplex,dataset_id)
+  subroutine phdf5_write_d(val,dims,dimsg,offset,dataset_id)
     use hdf5
     implicit none
-    type(block1d), intent(in) :: in1d
-    logical, intent(in) :: fcomplex
+    real(8), intent(in) :: val
+    integer, dimension(:), intent(in) :: dims, dimsg, offset
     integer(hid_t), intent(in) :: dataset_id
     ! local variables
-    integer :: ndims_, ierr
-    integer(hsize_t), allocatable, dimension(:) :: dims_, offset_, dimsg_
-    integer(hid_t) :: memspace_id, dataspace_id
-    if (fcomplex) then
-      ! set dimensions of the block, since the data is complex valued, there are 2 dims
-      allocate(dims_(2),offset_(2),dimsg_(2))
-      ndims_=2
-      dims_=(/2, in1d%blocksize/)
-      ! calculate global size of array
-      dimsg_=(/2, in1d%blocksize*in1d%nblocks /)
-      ! set parameters of hyperslab
-      offset_=(/0, in1d%offset/)
-    else
-      allocate(dims_(1),offset_(1),dimsg_(1))
-      ndims_=1
-      dims_=(/ in1d%blocksize/)
-      dimsg_=(/in1d%blocksize*in1d%nblocks/)
-      offset_=(/in1d%offset/)
-    end if
-    ! create memoryspace
-    call h5screate_simple_f(ndims_,dims_,memspace_id,ierr)
-    ! select hyperslab in file
-    call h5dget_space_f(dataset_id,dataspace_id,ierr)
-    call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset_,dims_,ierr)
-    ! write into hyperslab
-    call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,in1d%zcontent,dimsg_,ierr,file_space_id=dataspace_id,mem_space_id=memspace_id)
-    ! close memory space and dataspace
-    call h5sclose(dataspace_id,ierr)
-    call h5sclose(memspace_id,ierr)
-    ! deallocate arays
-    deallocate(dims_,dimsg_,offset_)
-  end subroutine
-!-----------------------------------------------------------------------------
-  subroutine get_block1d(in1d,fcomplex,dataset_id)
-    use hdf5
-    implicit none
-    type(block1d), intent(inout) :: in1d
-    logical, intent(in) :: fcomplex
-    integer(hid_t) :: dataset_id
-    ! local variables
-    integer :: ndims_, ierr
-    integer(hsize_t), allocatable, dimension(:) :: dims_, offset_, dimsg_
-    integer(hid_t) :: memspace_id, dataspace_id
-    if (fcomplex) then
-      ! set dimensions of the block, since the data is complex valued, there are 2 dims
-      allocate(dims_(2),dimsg_(2), offset_(2))
-      ndims_=2
-      dims_=(/2, in1d%blocksize/)
-      ! calculate global size of array
-      dimsg_=(/2, in1d%blocksize*in1d%nblocks /)
-      ! set parameters of hyperslab
-      offset_=(/0, in1d%offset/)
-    else
-      allocate(dims_(1),dimsg_(1),offset_(1))
-      ndims_=1
-      dims_=(/ in1d%blocksize/)
-      ! calculate global size of array
-      dimsg_=(/in1d%blocksize*in1d%nblocks /)
-      ! set parameters of hyperslab
-      offset_=(/in1d%offset/)
-    end if
-    ! create memoryspace
-    call h5screate_simple_f(ndims_,dims_,memspace_id,ierr)
-    ! select hyperslab in file
-    call h5dget_space_f(dataset_id,dataspace_id,ierr)
-    call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset_,dims_,ierr)
-    ! allocate output
-    if (allocated(in1d%zcontent)) deallocate(in1d%zcontent)
-    allocate(in1d%zcontent(in1d%blocksize))
-    ! read from hyperslab
-    call h5dread_f(dataset_id,H5T_NATIVE_DOUBLE,in1d%zcontent,dimsg_,ierr,file_space_id=dataspace_id,mem_space_id=memspace_id)
-    ! close memory space and dataspace
-    call h5sclose(dataspace_id,ierr)
-    call h5sclose(memspace_id,ierr)
+    integer(hsize_t), allocatable, dimension(:) :: dims_, dimsg_, offset_
+    integer :: ndims_
+    ! get number of dimensions & allocate hdf5 size arrays
+    ndims_=size(dims)
+    allocate(dims_(ndims_),dimsg_(ndims_),offset_(ndims_))
+    ! set local arrays
+    dims_(:)=dims(:)
+    dimsg_(:)=dimsg(:)
+    offset_(:)=offset(:)
+    ! write to hdf5
+    call phdf5_write_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    !deallocate arrays
     deallocate(dims_,dimsg_,offset_)
   end subroutine
 
+!-----------------------------------------------------------------------------
+  subroutine phdf5_write_z(val,dims,dimsg,offset,dataset_id)
+    use hdf5
+    implicit none
+    complex(8), intent(in) :: val
+    integer, dimension(:), intent(in) :: dims, dimsg, offset
+    integer(hid_t), intent(in) :: dataset_id
+    ! local variables
+    integer(hsize_t), allocatable, dimension(:) :: dims_, dimsg_, offset_
+    integer :: ndims_
+    ! get number of dimensions & allocate hdf5 size arrays
+    ndims_=size(dims)+1
+    allocate(dims_(ndims_),dimsg_(ndims_),offset_(ndims_))
+    ! set local arrays
+    dims_(1)=2
+    dims_(2:)=dims(:)
+    dimsg_(1)=2
+    dimsg_(2:)=dimsg(:)
+    offset_(1)=0
+    offset_(2:)=offset(:)
+    ! write to hdf5
+    print *, 'dataset=', dataset_id
+    call phdf5_write_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    !deallocate arrays
+    deallocate(dims_,dimsg_,offset_)
+  end subroutine
+
+!-----------------------------------------------------------------------------
+  subroutine phdf5_read_d(val,dims,dimsg,offset,dataset_id)
+    use hdf5
+    implicit none
+    real(8), intent(out) :: val
+    integer, dimension(:), intent(in) :: dims, dimsg, offset
+    integer(hid_t), intent(in) :: dataset_id
+    ! local variables
+    integer(hsize_t), allocatable, dimension(:) :: dims_, dimsg_, offset_
+    integer :: ndims_
+    ! get number of dimensions & allocate hdf5 size arrays
+    ndims_=size(dims)
+    allocate(dims_(ndims_),dimsg_(ndims_),offset_(ndims_))
+    ! set local arrays
+    dims_(:)=dims(:)
+    dimsg_(:)=dimsg(:)
+    offset_(:)=offset(:)
+    ! write to hdf5
+    call phdf5_read_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    !deallocate arrays
+    deallocate(dims_,dimsg_,offset_)
+  end subroutine
+
+!-----------------------------------------------------------------------------
+  subroutine phdf5_read_z(val,dims,dimsg,offset,dataset_id)
+    use hdf5
+    implicit none
+    complex(8), intent(out) :: val
+    integer, dimension(:), intent(in) :: dims, dimsg, offset
+    integer(hid_t), intent(in) :: dataset_id
+    ! local variables
+    integer(hsize_t), allocatable, dimension(:) :: dims_, dimsg_, offset_
+    integer :: ndims_
+    ! get number of dimensions & allocate hdf5 size arrays
+    ndims_=size(dims)
+    allocate(dims_(ndims_),dimsg_(ndims_),offset_(ndims_))
+    ! set local arrays
+    dims_(1)=2
+    dims_(2:)=dims(:)
+    dimsg_(1)=2
+    dimsg_(2:)=dimsg(:)
+    offset_(1)=0
+    offset_(2:)=offset(:)
+    ! write to hdf5
+    call phdf5_read_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    !deallocate arrays
+    deallocate(dims_,dimsg_,offset_)
+  end subroutine
 end module
+!-----------------------------------------------------------------------------
+subroutine phdf5_write_array_d(a,ndims,dims,dimsg,offset,dataset_id)
+  use hdf5
+  implicit none
+  real(8), intent(in) :: a(*)
+  integer, intent(in) :: ndims
+  integer(hsize_t), intent(in) :: dims(ndims), dimsg(ndims), offset(ndims)
+  integer(hid_t), intent(in) :: dataset_id
+  ! local variables
+  integer :: ierr
+  integer(hid_t) :: memspace_id, dataspace_id
+  print *, 'dataset=', dataset_id
+  ! create memoryspace
+  call h5screate_simple_f(ndims,dims,memspace_id,ierr)
+  ! select hyperslab in file
+  call h5dget_space_f(dataset_id,dataspace_id,ierr)
+  print *, 'ierr(after)=', ierr
+  call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset,dims,ierr)
+  ! write into hyperslab
+  call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  ! close memory space and dataspace
+  call h5sclose_f(dataspace_id,ierr)
+  call h5sclose_f(memspace_id,ierr) 
+end subroutine
+
+!-----------------------------------------------------------------------------
+subroutine phdf5_read_array_d(a,ndims,dims,dimsg,offset,dataset_id)
+  use hdf5
+  implicit none
+  real(8), intent(out) :: a(*)
+  integer, intent(in) :: ndims
+  integer(hsize_t), intent(in) :: dims(ndims), dimsg(ndims), offset(ndims)
+  integer(hid_t), intent(in) :: dataset_id
+  ! local variables
+  integer :: ierr
+  integer(hid_t) :: memspace_id, dataspace_id
+  ! create memoryspace
+  call h5screate_simple_f(ndims,dims,memspace_id,ierr)
+  ! select hyperslab in file
+  call h5dget_space_f(dataset_id,dataspace_id,ierr)
+  call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset,dims,ierr)
+  ! write into hyperslab
+  call h5dread_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  ! close memory space and dataspace
+  call h5sclose_f(dataspace_id,ierr)
+  call h5sclose_f(memspace_id,ierr) 
+end subroutine
