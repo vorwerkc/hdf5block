@@ -11,6 +11,7 @@ program main
   integer :: k
   integer(hid_t) :: file_id, dataset_id
   character(1024) :: path, groupname
+  complex(8), allocatable :: global(:)
   ! mpi variables
   integer :: mpierror
   integer :: comm, info
@@ -57,6 +58,30 @@ program main
   end do
   ! finalize
   call phdf5_cleanup(dataset_id)
+  ! now we try to read it again
+  call phdf5_setup_read(1,dimsg_,.True.,groupname,file_id,dataset_id)
+  ! allocate global array
+  if (mpi_rank .eq. 0) then
+    allocate(global(matsize_))
+  ! loop over blocks
+  do k=start, ende
+    ! set up readblock
+    readblock%nblocks=nblocks_
+    readblock%blocksize=blocksize_
+    readblock%il=(k-1)*blocksize_+1
+    readblock%iu=k*blocksize_
+    readblock%offset=(k-1)*blocksize_
+    readblock%id=k
+    if (allocated(readblock%zcontent)) deallocate(readblock%zcontent)
+    allocate(readblock%zcontent(blocksize_))
+    call get_block1d(readblock,.True.,dataset_id)
+    global(readblock%il:readblock%iu)=readblock%zcontent(:)
+  end do
+  ! write the global array
+  if (mpi_rank .eq. 0) then
+    print *, global
+  end if
+  deallocate(global)
   call phdf5_finalize(file_id)
   call mpi_finalize(mpierror)
 end program
