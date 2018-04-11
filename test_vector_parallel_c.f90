@@ -10,7 +10,7 @@ program main
   integer :: nblocks_, blocksize_, matsize_, dimsg_(1)
   integer :: k, l, p
   integer(hid_t) :: file_id, dataset_id
-  character(1024) :: path, groupname
+  character(1024) :: path, datasetname, groupname
   complex(8), allocatable :: global(:)
   ! mpi variables
   integer :: mpierror
@@ -24,7 +24,7 @@ program main
   matsize_=nblocks_*blocksize_ ! total matrix size
   dimsg_(1)=matsize_
   path='/'
-  groupname='A'
+  datasetname='A'
   ! set global MPI settings
   comm=MPI_COMM_WORLD
   info=MPI_INFO_NULL
@@ -34,8 +34,12 @@ program main
   call mpi_comm_rank(comm, mpi_rank,mpierror)
   ! global set-up for hdf5
   call phdf5_initialize(fname,.True.,file_id,comm)
+  ! create a group
+  groupname='test'
+  call phdf5_create_group(file_id,path,groupname)
+  path='/'//trim(groupname)//'/'
   ! matrix set-up for hdf5
-  call phdf5_setup_write(1,dimsg_,.True.,groupname,path,file_id,dataset_id) 
+  call phdf5_setup_write(1,dimsg_,.True.,datasetname,path,file_id,dataset_id) 
   ! distribute blocks over MPI ranks
   perrank=floor(float(nblocks_)/float(mpi_size))
   start=(mpi_rank)*perrank+1

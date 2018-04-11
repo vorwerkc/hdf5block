@@ -231,6 +231,44 @@ contains
     call h5dclose_f(dataset_id,ierr)
   end subroutine
 
+!-------------------------------------------------------------------------------    
+  subroutine hdf5_create_group(fname,path,gname)
+    use hdf5
+    implicit none
+    integer(hid_t), intent(in) :: file_id
+    character(*), intent(in) :: path
+    character(*), intent(in) :: gname
+    integer(hid_t) :: h5_group_id,h5_new_group_id
+    integer :: ierr
+
+    call h5gopen_f(file_id,trim(path),h5_group_id,ierr)
+    if (ierr.ne.0) then
+      write(*,'("Error(hdf5_create_group): h5gopen_f returned ",I6)')ierr
+      goto 10
+    endif
+    call h5gcreate_f(h5_group_id,trim(gname),h5_new_group_id,ierr)
+    if (ierr.ne.0) then
+      write(*,'("Error(hdf5_create_group): h5gcreate_f returned ",I6)')ierr
+      goto 10
+    endif
+    call h5gclose_f(h5_new_group_id,ierr)
+    if (ierr.ne.0) then
+      write(*,'("Error(hdf5_create_group): h5gclose_f for the new group returned ",I6)')ierr
+      goto 10
+    endif
+    call h5gclose_f(h5_group_id,ierr)
+    if (ierr.ne.0) then
+      write(*,'("Error(hdf5_create_group): h5gclose_f for the existing path returned ",I6)')ierr
+      goto 10
+    endif
+    return
+    10 continue
+    write(*,'("  file_id : ",I4)')file_id
+    write(*,'("  path  : ",A)')trim(path)
+    write(*,'("  gname : ",A)')trim(gname)  
+    stop
+    end subroutine
+
 !-----------------------------------------------------------------------------
   subroutine phdf5_write_d(val,fparallel,dims,dimsg,offset,dataset_id)
     use hdf5
