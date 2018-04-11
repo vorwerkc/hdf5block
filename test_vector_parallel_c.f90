@@ -31,7 +31,7 @@ program main
   call mpi_comm_size(comm,mpi_size,mpierror)
   call mpi_comm_rank(comm, mpi_rank,mpierror)
   ! global set-up for hdf5
-  call phdf5_initialize(fname,file_id,comm)
+  call phdf5_initialize(fname,.True.,file_id,comm)
   ! matrix set-up for hdf5
   call phdf5_setup_write(1,dimsg_,.True.,groupname,path,file_id,dataset_id) 
   
@@ -49,7 +49,7 @@ program main
     allocate(testblock%zcontent(blocksize_))
     testblock%zcontent(:)=cmplx(float(k),0.0d0)
     ! write block to hdf5 
-    call put_block1d(testblock,dataset_id) 
+    call put_block1d(testblock,.True.,dataset_id) 
   end do
   ! finalize
   call phdf5_cleanup(dataset_id)
@@ -67,7 +67,7 @@ program main
     ! allocate output array for the data
     if (allocated(readblock%zcontent)) deallocate(readblock%zcontent)
     allocate(readblock%zcontent(blocksize_))
-    call get_block1d(readblock,dataset_id)
+    call get_block1d(readblock,.True.,dataset_id)
     ! print the content of blocks
     print *, 'k=', k
     do l=1, blocksize_
