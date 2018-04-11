@@ -169,7 +169,8 @@ contains
   subroutine phdf5_setup_read(dims,fcomplex,dname,path,file_id,dataset_id)
     use hdf5
     implicit none
-    integer, intent(in) :: dims
+    integer, intent(in) :: ndims
+    integer, intent(in) :: dims(ndims)
     logical, intent(in) :: fcomplex
     character(1024), intent(in) :: dname, path
     integer(hid_t), intent(in) :: file_id
@@ -183,13 +184,14 @@ contains
     character*100 :: errmsg
     ! if the dataset represents complex data, create 2D array
     if (fcomplex) then
-      ndims_=2
+      ndims_=ndims+1
       allocate(dims_(ndims_))
-      dims_=(/2, dims/)
+      dims_(1)=2
+      dims_(2:)=dims
     else
-      ndims_=1
+      ndims_=ndims
       allocate(dims_(ndims_))
-      dims_(1)=dims
+      dims_(:)=dims(:)
     end if
     ! open group
     call h5gopen_f(file_id,trim(path),group_id,ierr)

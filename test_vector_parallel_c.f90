@@ -5,7 +5,7 @@ program main
   use mpi
 
   implicit none
-  type(block1d) :: testblock
+  type(block1d) :: testblock, readblock
   character(1024) :: fname
   integer :: nblocks_, blocksize_, matsize_, dimsg_(1)
   integer :: k
