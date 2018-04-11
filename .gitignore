@@ -30,7 +30,8 @@
 *.exe
 *.out
 *.app
-test
+test_read_c
+test_read_d
 
 #HDF5 Files
 *.h5

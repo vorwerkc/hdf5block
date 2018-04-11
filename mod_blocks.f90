@@ -49,7 +49,6 @@ module mod_blocks
     dimsg_(1)=in1d%blocksize*in1d%nblocks
     offset_(1)=in1d%offset
     ! if allocated, write the dcontent
-    print *, 'dataset=', dataset_id
     if (allocated(in1d%dcontent)) then
       call phdf5_write(in1d%dcontent(1),dims_,dimsg_,offset_,dataset_id)
     elseif (allocated(in1d%zcontent)) then
