@@ -76,4 +76,46 @@ module mod_blocks
       call phdf5_read(in1d%zcontent(1),dims_,dimsg_,offset_,dataset_id)
     end if
   end subroutine
+
+!-----------------------------------------------------------------------------
+  subroutine put_block2d(in2d,dataset_id)
+    use hdf5, only: hid_t
+    use mod_phdf5
+    implicit none
+    type(block2d), intent(inout) :: in2d
+    integer(hid_t) :: dataset_id
+    ! local variables
+    integer, dimension(2) :: dims_, dimsg_, offset_
+    ! set dimension & offset
+    dims_=(/ in2d%blocksize, in2d%blocksize/)
+    dimsg_=(/ in2d%blocksize*in2d%nblocks, in2d%blocksize*in2d%nblocks /) 
+    offset_=in2d%offset
+    ! if allocated, write the dcontent
+    if (allocated(in2d%dcontent)) then
+      call phdf5_write(in2d%dcontent(1,1),dims_,dimsg_,offset_,dataset_id)
+    elseif (allocated(in2d%zcontent)) then
+      call phdf5_write(in2d%zcontent(1,1),dims_,dimsg_,offset_,dataset_id)
+    end if
+  end subroutine
+
+!-----------------------------------------------------------------------------
+  subroutine get_block2d(in2d,dataset_id)
+    use hdf5, only: hid_t
+    use mod_phdf5
+    implicit none
+    type(block2d), intent(inout) :: in2d
+    integer(hid_t) :: dataset_id
+    ! local variables
+    integer, dimension(2) :: dims_, dimsg_, offset_
+    ! set dimension & offset
+    dims_=(/ in2d%blocksize, in2d%blocksize/)
+    dimsg_=(/ in2d%blocksize*in2d%nblocks, in2d%blocksize*in2d%nblocks /) 
+    offset_=in2d%offset
+    ! if allocated, write the dcontent
+    if (allocated(in2d%dcontent)) then
+      call phdf5_read(in2d%dcontent(1,1),dims_,dimsg_,offset_,dataset_id)
+    elseif (allocated(in2d%zcontent)) then
+      call phdf5_read(in2d%zcontent(1,1),dims_,dimsg_,offset_,dataset_id)
+    end if
+  end subroutine
 end module mod_blocks

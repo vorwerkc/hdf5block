@@ -39,10 +39,11 @@ contains
   end subroutine 
 
 !-------------------------------------------------------------------------------
-  subroutine phdf5_setup_write(dims,fcomplex,dname,path,file_id,dataset_id)
+  subroutine phdf5_setup_write(ndims,dims,fcomplex,dname,path,file_id,dataset_id)
     use hdf5
     implicit none
-    integer, intent(in) :: dims
+    integer, intent(in) :: ndims
+    integer, dimension(ndims), intent(in) :: dims
     logical, intent(in) :: fcomplex
     character(1024), intent(in) :: dname, path
     integer(hid_t), intent(in) :: file_id
@@ -56,13 +57,14 @@ contains
     character*100 :: errmsg
     ! if the dataset represents complex data, create 2D array
     if (fcomplex) then
-      ndims_=2
+      ndims_=ndims+1
       allocate(dims_(ndims_))
-      dims_=(/2, dims/)
+      dims_(1)=2
+      dims_(2:)=dims
     else
-      ndims_=1
+      ndims_=ndims
       allocate(dims_(ndims_))
-      dims_(1)=dims
+      dims_(:)=dims
     end if
     ! create the dataspace
     call h5screate_simple_f(ndims_,dims_,dataspace_id,ierr)

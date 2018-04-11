@@ -12,23 +12,19 @@ block3d	mod_blocks.f90	/^  type :: block3d$/;"	t	module:mod_blocks
 blocksize	mod_blocks.f90	/^    integer(4) :: blocksize /;"	k	type:block1d
 blocksize	mod_blocks.f90	/^    integer(4) :: blocksize /;"	k	type:block2d
 blocksize	mod_blocks.f90	/^    integer(4), dimension(3) :: blocksize /;"	k	type:block3d
-blocksize_	test_c.f90	/^  integer :: nblocks_, blocksize_,/;"	v	program:main
-blocksize_	test_r.f90	/^  integer :: nblocks_, blocksize_,/;"	v	program:main
+blocksize_	test_matrix_c.f90	/^  integer :: nblocks_, blocksize_,/;"	v	program:main
 blocksize_	test_read_c.f90	/^  integer :: nblocks_, blocksize_,/;"	v	program:main
-dataset_id	test_c.f90	/^  integer(hid_t) :: file_id, dataset_id$/;"	v	program:main
-dataset_id	test_r.f90	/^  integer(hid_t) :: file_id, dataset_id$/;"	v	program:main
+dataset_id	test_matrix_c.f90	/^  integer(hid_t) :: file_id, dataset_id$/;"	v	program:main
 dataset_id	test_read_c.f90	/^  integer(hid_t) :: file_id, dataset_id$/;"	v	program:main
 dcontent	mod_blocks.f90	/^    real(8), allocatable :: dcontent(/;"	k	type:block1d
 dcontent	mod_blocks.f90	/^    real(8), allocatable :: dcontent(/;"	k	type:block2d
-file_id	test_c.f90	/^  integer(hid_t) :: file_id,/;"	v	program:main
-file_id	test_r.f90	/^  integer(hid_t) :: file_id,/;"	v	program:main
+file_id	test_matrix_c.f90	/^  integer(hid_t) :: file_id,/;"	v	program:main
 file_id	test_read_c.f90	/^  integer(hid_t) :: file_id,/;"	v	program:main
-fname	test_c.f90	/^  character(1024) :: fname$/;"	v	program:main
-fname	test_r.f90	/^  character(1024) :: fname$/;"	v	program:main
+fname	test_matrix_c.f90	/^  character(1024) :: fname$/;"	v	program:main
 fname	test_read_c.f90	/^  character(1024) :: fname$/;"	v	program:main
 get_block1d	mod_blocks.f90	/^  subroutine get_block1d(/;"	s	module:mod_blocks
-groupname	test_c.f90	/^  character(1024) :: path, groupname$/;"	v	program:main
-groupname	test_r.f90	/^  character(1024) :: path, groupname$/;"	v	program:main
+get_block2d	mod_blocks.f90	/^  subroutine get_block2d(/;"	s	module:mod_blocks
+groupname	test_matrix_c.f90	/^  character(1024) :: path, groupname$/;"	v	program:main
 groupname	test_read_c.f90	/^  character(1024) :: path, groupname$/;"	v	program:main
 id	mod_blocks.f90	/^    integer(4) :: id /;"	k	type:block1d
 id	mod_blocks.f90	/^    integer(4) :: id /;"	k	type:block3d
@@ -39,11 +35,11 @@ iu	mod_blocks.f90	/^    integer(4) :: il, iu /;"	k	type:block1d
 iu	mod_blocks.f90	/^    integer(4) :: il, iu,/;"	k	type:block2d
 jl	mod_blocks.f90	/^    integer(4) :: il, iu, jl,/;"	k	type:block2d
 ju	mod_blocks.f90	/^    integer(4) :: il, iu, jl, ju /;"	k	type:block2d
-k	test_c.f90	/^  integer :: k$/;"	v	program:main
-k	test_r.f90	/^  integer :: k$/;"	v	program:main
 k	test_read_c.f90	/^  integer :: k,/;"	v	program:main
+k1	test_matrix_c.f90	/^  integer :: k1,/;"	v	program:main
 k1l	mod_blocks.f90	/^    integer(4) :: k1l,/;"	k	type:block2d
 k1u	mod_blocks.f90	/^    integer(4) :: k1l, k1u,/;"	k	type:block2d
+k2	test_matrix_c.f90	/^  integer :: k1, k2,/;"	v	program:main
 k2l	mod_blocks.f90	/^    integer(4) :: k1l, k1u, k2l,/;"	k	type:block2d
 k2u	mod_blocks.f90	/^    integer(4) :: k1l, k1u, k2l, k2u /;"	k	type:block2d
 kl	mod_blocks.f90	/^    integer(4) :: kl,/;"	k	type:block1d
@@ -51,27 +47,25 @@ kl	mod_blocks.f90	/^    integer(4) :: kl,/;"	k	type:block3d
 ku	mod_blocks.f90	/^    integer(4) :: kl, ku /;"	k	type:block1d
 ku	mod_blocks.f90	/^    integer(4) :: kl, ku /;"	k	type:block3d
 l	test_read_c.f90	/^  integer :: k, l$/;"	v	program:main
-main	test_c.f90	/^program main$/;"	p
-main	test_r.f90	/^program main$/;"	p
+l1	test_matrix_c.f90	/^  integer :: k1, k2, l1,/;"	v	program:main
+l2	test_matrix_c.f90	/^  integer :: k1, k2, l1, l2$/;"	v	program:main
+main	test_matrix_c.f90	/^program main$/;"	p
 main	test_read_c.f90	/^program main$/;"	p
-matsize_	test_c.f90	/^  integer :: nblocks_, blocksize_, matsize_$/;"	v	program:main
-matsize_	test_r.f90	/^  integer :: nblocks_, blocksize_, matsize_$/;"	v	program:main
+matsize_	test_matrix_c.f90	/^  integer :: nblocks_, blocksize_, matsize_$/;"	v	program:main
 matsize_	test_read_c.f90	/^  integer :: nblocks_, blocksize_, matsize_$/;"	v	program:main
 mod_blocks	mod_blocks.f90	/^module mod_blocks$/;"	m
 mod_phdf5	mod_phdf5.f90	/^module mod_phdf5$/;"	m
 nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block1d
 nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block2d
 nblocks	mod_blocks.f90	/^    integer(4) :: nblocks /;"	k	type:block3d
-nblocks_	test_c.f90	/^  integer :: nblocks_,/;"	v	program:main
-nblocks_	test_r.f90	/^  integer :: nblocks_,/;"	v	program:main
+nblocks_	test_matrix_c.f90	/^  integer :: nblocks_,/;"	v	program:main
 nblocks_	test_read_c.f90	/^  integer :: nblocks_,/;"	v	program:main
 nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block1d
 nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block2d
 nk	mod_blocks.f90	/^    integer(4) :: nk /;"	k	type:block3d
 offset	mod_blocks.f90	/^    integer(4) :: offset /;"	k	type:block1d
 offset	mod_blocks.f90	/^    integer(4), dimension(2) :: offset /;"	k	type:block2d
-path	test_c.f90	/^  character(1024) :: path,/;"	v	program:main
-path	test_r.f90	/^  character(1024) :: path,/;"	v	program:main
+path	test_matrix_c.f90	/^  character(1024) :: path,/;"	v	program:main
 path	test_read_c.f90	/^  character(1024) :: path,/;"	v	program:main
 phdf5_cleanup	mod_phdf5.f90	/^  subroutine phdf5_cleanup(/;"	s	module:mod_phdf5
 phdf5_finalize	mod_phdf5.f90	/^  subroutine phdf5_finalize(/;"	s	module:mod_phdf5
@@ -85,9 +79,10 @@ phdf5_write_array_d	mod_phdf5.f90	/^subroutine phdf5_write_array_d(/;"	s
 phdf5_write_d	mod_phdf5.f90	/^  subroutine phdf5_write_d(/;"	s	module:mod_phdf5
 phdf5_write_z	mod_phdf5.f90	/^  subroutine phdf5_write_z(/;"	s	module:mod_phdf5
 put_block1d	mod_blocks.f90	/^  subroutine put_block1d(/;"	s	module:mod_blocks
+put_block2d	mod_blocks.f90	/^  subroutine put_block2d(/;"	s	module:mod_blocks
+readblock	test_matrix_c.f90	/^  type(block2d) :: testblock, readblock$/;"	v	program:main
 readblock	test_read_c.f90	/^  type(block1d) :: testblock, readblock$/;"	v	program:main
-testblock	test_c.f90	/^  type(block1d) :: testblock$/;"	v	program:main
-testblock	test_r.f90	/^  type(block1d) :: testblock$/;"	v	program:main
+testblock	test_matrix_c.f90	/^  type(block2d) :: testblock,/;"	v	program:main
 testblock	test_read_c.f90	/^  type(block1d) :: testblock,/;"	v	program:main
 zcontent	mod_blocks.f90	/^    complex(8), allocatable :: zcontent(/;"	k	type:block1d
 zcontent	mod_blocks.f90	/^    complex(8), allocatable :: zcontent(/;"	k	type:block2d

@@ -30,9 +30,8 @@
 *.exe
 *.out
 *.app
-test_read_c
-test_read_d
-
+test_vector_c
+test_matrix_c
 #HDF5 Files
 *.h5
 
