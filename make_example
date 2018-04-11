@@ -1,0 +1,2 @@
+#... with full debug options
+/users/stud/vorwerk/bin/phdf5-1.10.2/bin/h5pfc -g -traceback -mkl -warn unused hdf5_example.f90 -o hdf5_example
