@@ -19,8 +19,7 @@
      INTEGER(HID_T) :: memspace      ! Dataspace identifier in memory
      INTEGER(HID_T) :: plist_id      ! Property list identifier 
 
-     INTEGER(HSIZE_T), DIMENSION(2) :: dimsf = (/5,8/) ! Dataset
-dimensions.
+     INTEGER(HSIZE_T), DIMENSION(2) :: dimsf = (/5,8/) ! Dataset dimensions.
 !     INTEGER, DIMENSION(7) :: dimsfi = (/5,8,0,0,0,0,0/)
      INTEGER(HSIZE_T), DIMENSION(2) :: dimsfi = (/5,8/)
 
@@ -66,8 +65,7 @@ dimensions.
      !
      ! Create the dataset with default properties.
      !
-     CALL h5dcreate_f(file_id, dsetname, H5T_NATIVE_INTEGER, filespace,
-     C&
+     CALL h5dcreate_f(file_id, dsetname, H5T_NATIVE_INTEGER, filespace, &
                       dset_id, error)
      CALL h5sclose_f(filespace, error)
      !
@@ -84,8 +82,7 @@ dimensions.
      ! Select hyperslab in the file.
      !
      CALL h5dget_space_f(dset_id, filespace, error)
-     CALL h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, offset,
-     Ccount, error)
+     CALL h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, offset, count, error)
      ! 
      ! Initialize data buffer with trivial data.
      !
@@ -101,8 +98,7 @@ dimensions.
      ! Write the dataset collectively. 
      !
      CALL h5dwrite_f(dset_id, H5T_NATIVE_INTEGER, data, dimsfi, error, &
-                     file_space_id = filespace, mem_space_id = memspace,
-xfer_prp = plist_id)
+                     file_space_id = filespace, mem_space_id = memspace, xfer_prp = plist_id)
      !
      ! Write the dataset independently. 
      !
