@@ -14,15 +14,35 @@ module mod_phdf5
 contains
 
 !-------------------------------------------------------------------------------
-  subroutine phdf5_initialize(fname,file_id)
+  subroutine phdf5_initialize(fname,fparallel,file_id,comm)
     use hdf5
+    use mpi
     implicit none
     character(1024), intent(in) :: fname
+    logical, intent(in) :: fparallel
     integer(hid_t), intent(out) :: file_id
+    integer, optional :: comm
     ! local variables
+    integer (hid_t) :: plist_id
     integer :: ierr
-    call h5open_f(ierr)
-    call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr)
+    integer :: comm, info
+    ! MPI File creation & Global Access
+    if (fparallel) then
+      call h5open_f(ierr)
+      ! set mpi info object
+      info=MPI_INFO_NULL
+      ! create file access property list w/ parallel IO access
+      call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id, ierr)
+      call h5pset_fapl_mpio(plist_id,comm,info,ierr)
+      ! create the file collectively
+      call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr,plist_id)
+      ! close property list
+      call h5pclose_f(plist_id,ierr)
+    ! Serial Access
+    else
+      call h5open_f(ierr)
+      call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr)
+    end if
   end subroutine
 
 !-------------------------------------------------------------------------------
@@ -166,10 +186,11 @@ contains
   end subroutine
 
 !-----------------------------------------------------------------------------
-  subroutine phdf5_write_d(val,dims,dimsg,offset,dataset_id)
+  subroutine phdf5_write_d(val,fparallel,dims,dimsg,offset,dataset_id)
     use hdf5
     implicit none
     real(8), intent(in) :: val
+    logical, intent(in) :: fparallel
     integer, dimension(:), intent(in) :: dims, dimsg, offset
     integer(hid_t), intent(in) :: dataset_id
     ! local variables
@@ -183,16 +204,17 @@ contains
     dimsg_(:)=dimsg(:)
     offset_(:)=offset(:)
     ! write to hdf5
-    call phdf5_write_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    call phdf5_write_array_d(val,fparallel,ndims_,dims_,dimsg_,offset_,dataset_id)
     !deallocate arrays
     deallocate(dims_,dimsg_,offset_)
   end subroutine
 
 !-----------------------------------------------------------------------------
-  subroutine phdf5_write_z(val,dims,dimsg,offset,dataset_id)
+  subroutine phdf5_write_z(val,fparallel,dims,dimsg,offset,dataset_id)
     use hdf5
     implicit none
     complex(8), intent(in) :: val
+    logical, intent(in) :: fparallel
     integer, dimension(:), intent(in) :: dims, dimsg, offset
     integer(hid_t), intent(in) :: dataset_id
     ! local variables
@@ -209,16 +231,17 @@ contains
     offset_(1)=0
     offset_(2:)=offset(:)
     ! write to hdf5
-    call phdf5_write_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    call phdf5_write_array_d(val,fparallel,ndims_,dims_,dimsg_,offset_,dataset_id)
     !deallocate arrays
     deallocate(dims_,dimsg_,offset_)
   end subroutine
 
 !-----------------------------------------------------------------------------
-  subroutine phdf5_read_d(val,dims,dimsg,offset,dataset_id)
+  subroutine phdf5_read_d(val,fparallel,dims,dimsg,offset,dataset_id)
     use hdf5
     implicit none
     real(8), intent(out) :: val
+    logical, intent(in) :: fparallel
     integer, dimension(:), intent(in) :: dims, dimsg, offset
     integer(hid_t), intent(in) :: dataset_id
     ! local variables
@@ -232,16 +255,17 @@ contains
     dimsg_(:)=dimsg(:)
     offset_(:)=offset(:)
     ! write to hdf5
-    call phdf5_read_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    call phdf5_read_array_d(val,fparallel,ndims_,dims_,dimsg_,offset_,dataset_id)
     !deallocate arrays
     deallocate(dims_,dimsg_,offset_)
   end subroutine
 
 !-----------------------------------------------------------------------------
-  subroutine phdf5_read_z(val,dims,dimsg,offset,dataset_id)
+  subroutine phdf5_read_z(val,fparallel,dims,dimsg,offset,dataset_id)
     use hdf5
     implicit none
     complex(8), intent(out) :: val
+    logical, intent(in) :: fparallel
     integer, dimension(:), intent(in) :: dims, dimsg, offset
     integer(hid_t), intent(in) :: dataset_id
     ! local variables
@@ -258,52 +282,78 @@ contains
     offset_(1)=0
     offset_(2:)=offset(:)
     ! write to hdf5
-    call phdf5_read_array_d(val,ndims_,dims_,dimsg_,offset_,dataset_id)
+    call phdf5_read_array_d(val,fparallel,ndims_,dims_,dimsg_,offset_,dataset_id)
     !deallocate arrays
     deallocate(dims_,dimsg_,offset_)
   end subroutine
 end module
 !-----------------------------------------------------------------------------
-subroutine phdf5_write_array_d(a,ndims,dims,dimsg,offset,dataset_id)
+subroutine phdf5_write_array_d(a,fparallel,ndims,dims,dimsg,offset,dataset_id)
   use hdf5
   implicit none
   real(8), intent(in) :: a(*)
+  logical, intent(in) :: fparallel
   integer, intent(in) :: ndims
   integer(hsize_t), intent(in) :: dims(ndims), dimsg(ndims), offset(ndims)
   integer(hid_t), intent(in) :: dataset_id
   ! local variables
   integer :: ierr
-  integer(hid_t) :: memspace_id, dataspace_id
+  integer(hid_t) :: memspace_id, dataspace_id, plist_id
   ! create memoryspace
   call h5screate_simple_f(ndims,dims,memspace_id,ierr)
   ! select hyperslab in file
   call h5dget_space_f(dataset_id,dataspace_id,ierr)
   call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset,dims,ierr)
   ! write into hyperslab
-  call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  ! MPI I/O independently
+  if (fparallel) then
+    ! create property list for individual dataset write
+    call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,ierr)
+    call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_INDEPENDENT_F,ierr)
+    ! write the dataset
+    call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id,plist_id)
+    ! close the property list
+    call h5pclose_f(plist_id,ierr)
+  ! serial
+  else
+    call h5dwrite_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  end if
   ! close memory space and dataspace
   call h5sclose_f(dataspace_id,ierr)
   call h5sclose_f(memspace_id,ierr) 
 end subroutine
 
 !-----------------------------------------------------------------------------
-subroutine phdf5_read_array_d(a,ndims,dims,dimsg,offset,dataset_id)
+subroutine phdf5_read_array_d(a,fparallel,ndims,dims,dimsg,offset,dataset_id)
   use hdf5
   implicit none
   real(8), intent(out) :: a(*)
+  logical, intent(in) :: fparallel
   integer, intent(in) :: ndims
   integer(hsize_t), intent(in) :: dims(ndims), dimsg(ndims), offset(ndims)
   integer(hid_t), intent(in) :: dataset_id
   ! local variables
   integer :: ierr
-  integer(hid_t) :: memspace_id, dataspace_id
+  integer(hid_t) :: memspace_id, dataspace_id, plist_id
   ! create memoryspace
   call h5screate_simple_f(ndims,dims,memspace_id,ierr)
   ! select hyperslab in file
   call h5dget_space_f(dataset_id,dataspace_id,ierr)
   call h5sselect_hyperslab_f(dataspace_id,H5S_SELECT_SET_F,offset,dims,ierr)
-  ! write into hyperslab
-  call h5dread_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  ! read from hyperslab
+  ! MPI read
+  if (fparallel) then
+    ! create property list for individual dataset write
+    call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,ierr)
+    call h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_INDEPENDENT_F,ierr)
+    ! read dataset into memory
+    call h5dread_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id,plist_id)
+    ! close the property list
+    call h5pclose_f(plist_id,ierr)
+  ! serial read
+  else
+    call h5dread_f(dataset_id,H5T_NATIVE_DOUBLE,a,dimsg,ierr,memspace_id,dataspace_id)
+  end if
   ! close memory space and dataspace
   call h5sclose_f(dataspace_id,ierr)
   call h5sclose_f(memspace_id,ierr) 
