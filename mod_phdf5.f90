@@ -166,7 +166,7 @@ contains
   end subroutine
   
 !-------------------------------------------------------------------------------
-  subroutine phdf5_setup_read(dims,fcomplex,dname,path,file_id,dataset_id)
+  subroutine phdf5_setup_read(ndims,dims,fcomplex,dname,path,file_id,dataset_id)
     use hdf5
     implicit none
     integer, intent(in) :: ndims
