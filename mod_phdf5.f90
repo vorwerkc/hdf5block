@@ -48,7 +48,7 @@ contains
         goto 10
       endif    
       ! create the file collectively
-      call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr,plist_id)
+      call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr,access_prp=plist_id)
       if (ierr.ne.0) then
         write(errmsg,'("Error(phdf5_initialize): h5fcreate_f returned ",I6)')ierr
         goto 10
@@ -86,6 +86,7 @@ contains
     integer(hid_t), intent(in) :: file_id
     ! local variable
     integer :: ierr
+    character*100 :: errmsg
 
     call h5fclose_f(file_id,ierr)
     if (ierr.ne.0) then
@@ -136,14 +137,13 @@ contains
       goto 10
     endif    
     ! open group
-    !call h5gopen_f(file_id,trim(path),group_id,ierr)
-    !if (ierr.ne.0) then
-    !  write(errmsg,'("Error(phdf5_setup): h5gopen_f returned ",I6)')ierr
-    !  goto 10
-    !endif    
+    call h5gopen_f(file_id,trim(path),group_id,ierr)
+    if (ierr.ne.0) then
+      write(errmsg,'("Error(phdf5_setup): h5gopen_f returned ",I6)')ierr
+      goto 10
+    endif    
     ! create the dataset
-    !call h5dcreate_f(group_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
-    call h5dcreate_f(file_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
+    call h5dcreate_f(group_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
     if (ierr.ne.0) then
       write(errmsg,'("error(phdf5_setup): h5dcreate_f returned ",i6)')ierr
       goto 10
