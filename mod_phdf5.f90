@@ -25,7 +25,7 @@ contains
     ! local variables
     integer (hid_t) :: plist_id
     integer :: ierr
-    integer :: comm, info
+    integer :: info
     ! MPI File creation & Global Access
     if (fparallel) then
       call h5open_f(ierr)

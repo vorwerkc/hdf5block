@@ -31,7 +31,7 @@ program main
   call mpi_comm_size(comm,mpi_size,mpierror)
   call mpi_comm_rank(comm, mpi_rank,mpierror)
   ! global set-up for hdf5
-  call phdf5_initialize(fname,file_id)
+  call phdf5_initialize(fname,file_id,comm)
   ! matrix set-up for hdf5
   call phdf5_setup_write(1,dimsg_,.True.,groupname,path,file_id,dataset_id) 
   
