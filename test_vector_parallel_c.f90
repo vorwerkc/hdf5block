@@ -5,10 +5,10 @@ program main
   use mpi
 
   implicit none
-  type(block1d) :: testblock, readblock
+  type(block1d) :: testblock
   character(1024) :: fname
   integer :: nblocks_, blocksize_, matsize_, dimsg_(1)
-  integer :: k, l
+  integer :: k
   integer(hid_t) :: file_id, dataset_id
   character(1024) :: path, groupname
   ! mpi variables

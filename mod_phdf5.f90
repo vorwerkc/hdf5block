@@ -33,7 +33,7 @@ contains
       info=MPI_INFO_NULL
       ! create file access property list w/ parallel IO access
       call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id, ierr)
-      call h5pset_fapl_mpio(plist_id,comm,info,ierr)
+      call h5pset_fapl_mpio_f(plist_id,comm,info,ierr)
       ! create the file collectively
       call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr,plist_id)
       ! close property list
