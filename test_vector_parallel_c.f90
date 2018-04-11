@@ -8,7 +8,7 @@ program main
   type(block1d) :: testblock, readblock
   character(1024) :: fname
   integer :: nblocks_, blocksize_, matsize_, dimsg_(1)
-  integer :: k
+  integer :: k, l, p
   integer(hid_t) :: file_id, dataset_id
   character(1024) :: path, groupname
   complex(8), allocatable :: global(:)
@@ -61,9 +61,7 @@ program main
   ! now we try to read it again
   call phdf5_setup_read(1,dimsg_,.True.,groupname,path,file_id,dataset_id)
   ! allocate global array
-  if (mpi_rank .eq. 0) then
-    allocate(global(matsize_))
-  end if
+  allocate(global(perrank*blocksize_))
   ! loop over blocks
   do k=start, ende
     ! set up readblock
@@ -76,13 +74,19 @@ program main
     if (allocated(readblock%zcontent)) deallocate(readblock%zcontent)
     allocate(readblock%zcontent(blocksize_))
     call get_block1d(readblock,.True.,dataset_id)
-    global(readblock%il:readblock%iu)=readblock%zcontent(:)
+    do l=1, blocksize_
+      global(l+(readblock%id-start)*blocksize_)=readblock%zcontent(l)
+    end do
   end do
-  ! write the global array
-  if (mpi_rank .eq. 0) then
-    print *, global
+  ! write out the result
+  if (mpi_rank .eq. 1) then
+    print *, '******** rank=', mpi_rank, '**************'
+    do l=1, size(global)
+      print *, global(l)
+    end do 
   end if
   deallocate(global)
+  call phdf5_cleanup(dataset_id)
   call phdf5_finalize(file_id)
   call mpi_finalize(mpierror)
 end program
