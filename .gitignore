@@ -32,6 +32,7 @@
 *.app
 test_vector_c
 test_matrix_c
+test_parallel
 #HDF5 Files
 *.h5
 
