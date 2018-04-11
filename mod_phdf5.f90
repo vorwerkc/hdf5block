@@ -26,23 +26,57 @@ contains
     integer (hid_t) :: plist_id
     integer :: ierr
     integer :: info
+    character*100 :: errmsg
     ! MPI File creation & Global Access
     if (fparallel) then
       call h5open_f(ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5open_f returned ",I6)')ierr
+        goto 10
+      endif    
       ! set mpi info object
       info=MPI_INFO_NULL
       ! create file access property list w/ parallel IO access
       call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id, ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5pcreate_f returned ",I6)')ierr
+        goto 10
+      endif    
       call h5pset_fapl_mpio_f(plist_id,comm,info,ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5pset_fapl_mpio_f returned ",I6)')ierr
+        goto 10
+      endif    
       ! create the file collectively
       call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr,plist_id)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5fcreate_f returned ",I6)')ierr
+        goto 10
+      endif    
       ! close property list
       call h5pclose_f(plist_id,ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5pclose_f returned ",I6)')ierr
+        goto 10
+      endif    
     ! Serial Access
     else
       call h5open_f(ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5open_f returned ",I6)')ierr
+        goto 10
+      endif    
       call h5fcreate_f(trim(fname),H5F_ACC_TRUNC_F,file_id,ierr)
+      if (ierr.ne.0) then
+        write(errmsg,'("Error(phdf5_initialize): h5fcreate_f returned ",I6)')ierr
+        goto 10
+      endif    
     end if
+    return
+    10 continue
+    write(*,'(A)')trim(errmsg)
+    write(*,'("  fname : ",A)')trim(fname)
+    stop
   end subroutine
 
 !-------------------------------------------------------------------------------
@@ -54,6 +88,15 @@ contains
     integer :: ierr
 
     call h5fclose_f(file_id,ierr)
+    if (ierr.ne.0) then
+      write(errmsg,'("Error(phdf5_finalize): h5fclose_f returned ",I6)')ierr
+      goto 10
+    endif
+    return
+    10 continue
+    write(*,'(A)')trim(errmsg)
+    write(*,'("  file_id : ",I4)')file_id
+    stop
     call h5close_f(ierr)
   
   end subroutine 
@@ -89,27 +132,27 @@ contains
     ! create the dataspace
     call h5screate_simple_f(ndims_,dims_,dataspace_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("Error(prepare_output): h5screate_simple_f returned ",I6)')ierr
+      write(errmsg,'("Error(phdf5_setup): h5screate_simple_f returned ",I6)')ierr
       goto 10
     endif    
     ! open group
     !call h5gopen_f(file_id,trim(path),group_id,ierr)
     !if (ierr.ne.0) then
-    !  write(errmsg,'("Error(prepare_output): h5gopen_f returned ",I6)')ierr
+    !  write(errmsg,'("Error(phdf5_setup): h5gopen_f returned ",I6)')ierr
     !  goto 10
     !endif    
     ! create the dataset
     !call h5dcreate_f(group_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
     call h5dcreate_f(file_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("error(prepare_output): h5dcreate_f returned ",i6)')ierr
+      write(errmsg,'("error(phdf5_setup): h5dcreate_f returned ",i6)')ierr
       goto 10
     endif    
     ! close dataset, group, dataspace
     call h5gclose_f(group_id,ierr)
     call h5sclose_f(dataspace_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("error(prepare_output): closing returned ",i6)')ierr
+      write(errmsg,'("error(phdf5_setup): closing returned ",i6)')ierr
       goto 10
     endif    
     deallocate(dims_)
@@ -151,19 +194,19 @@ contains
     ! open group
     call h5gopen_f(file_id,trim(path),group_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("Error(prepare_output): h5gopen_f returned ",I6)')ierr
+      write(errmsg,'("Error(phdf5_setup): h5gopen_f returned ",I6)')ierr
       goto 10
     endif    
     ! open the dataset
     call h5dopen_f(group_id,trim(dname),dataset_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("error(prepare_output): h5dopen_f returned ",i6)')ierr
+      write(errmsg,'("error(phdf5_setup): h5dopen_f returned ",i6)')ierr
       goto 10
     endif    
     ! close dataset, group
     call h5gclose_f(group_id,ierr)
     if (ierr.ne.0) then
-      write(errmsg,'("error(prepare_output): closing returned ",i6)')ierr
+      write(errmsg,'("error(phdf5_setup): closing returned ",i6)')ierr
       goto 10
     endif    
     deallocate(dims_)
