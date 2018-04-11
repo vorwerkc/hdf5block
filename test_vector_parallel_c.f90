@@ -15,6 +15,7 @@ program main
   integer :: mpierror
   integer :: comm, info
   integer :: mpi_size, mpi_rank
+  integer :: start, ende, perrank
   ! set global parameters
   fname='vector.h5'
   nblocks_=4 ! number of blocks
@@ -34,9 +35,12 @@ program main
   call phdf5_initialize(fname,.True.,file_id,comm)
   ! matrix set-up for hdf5
   call phdf5_setup_write(1,dimsg_,.True.,groupname,path,file_id,dataset_id) 
-  
+  ! distribute blocks over MPI ranks
+  perrank=floor(float(nblocks_)/float(mpi_size))
+  start=(mpi_rank)*perrank+1
+  ende=(mpi_rank+1)*perrank
   ! generate a test-matrix, distribute it over blocks and write to HDF5
-  do k=1, nblocks_
+  do k=start, ende
     ! set up testblock
     testblock%nblocks=nblocks_
     testblock%blocksize=blocksize_
@@ -50,29 +54,6 @@ program main
     testblock%zcontent(:)=cmplx(float(k),0.0d0)
     ! write block to hdf5 
     call put_block1d(testblock,.True.,dataset_id) 
-  end do
-  ! finalize
-  call phdf5_cleanup(dataset_id)
-
-  ! open file again and read the vector to blocks
-  call phdf5_setup_read(matsize_,.True.,groupname,path,file_id,dataset_id)
-  do k=1,nblocks_
-    ! set up the readblocks
-    readblock%nblocks=nblocks_
-    readblock%blocksize=blocksize_
-    readblock%il=(k-1)*blocksize_+1
-    readblock%iu=k*blocksize_
-    readblock%offset=(k-1)*blocksize_
-    readblock%id=k
-    ! allocate output array for the data
-    if (allocated(readblock%zcontent)) deallocate(readblock%zcontent)
-    allocate(readblock%zcontent(blocksize_))
-    call get_block1d(readblock,.True.,dataset_id)
-    ! print the content of blocks
-    print *, 'k=', k
-    do l=1, blocksize_
-      print *, 'readblock%zcontent(',l,')=', readblock%zcontent(l)
-    end do
   end do
   ! finalize
   call phdf5_cleanup(dataset_id)
