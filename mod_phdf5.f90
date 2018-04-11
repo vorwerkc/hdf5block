@@ -93,13 +93,14 @@ contains
       goto 10
     endif    
     ! open group
-    call h5gopen_f(file_id,trim(path),group_id,ierr)
-    if (ierr.ne.0) then
-      write(errmsg,'("Error(prepare_output): h5gopen_f returned ",I6)')ierr
-      goto 10
-    endif    
+    !call h5gopen_f(file_id,trim(path),group_id,ierr)
+    !if (ierr.ne.0) then
+    !  write(errmsg,'("Error(prepare_output): h5gopen_f returned ",I6)')ierr
+    !  goto 10
+    !endif    
     ! create the dataset
-    call h5dcreate_f(group_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
+    !call h5dcreate_f(group_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
+    call h5dcreate_f(file_id,trim(dname),H5T_NATIVE_DOUBLE,dataspace_id,dataset_id,ierr)
     if (ierr.ne.0) then
       write(errmsg,'("error(prepare_output): h5dcreate_f returned ",i6)')ierr
       goto 10
