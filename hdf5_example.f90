@@ -9,8 +9,7 @@
      IMPLICIT NONE
 
      include 'mpif.h'
-     CHARACTER(LEN=10), PARAMETER :: filename = "sds_col.h5"  ! File
-     Cname
+     CHARACTER(LEN=10), PARAMETER :: filename = "sds_col.h5"  ! Filename
      CHARACTER(LEN=8), PARAMETER :: dsetname = "IntArray" ! Dataset name
 
      INTEGER(HID_T) :: file_id       ! File identifier 
@@ -28,7 +27,7 @@
      INTEGER, ALLOCATABLE :: data (:,:)  ! Data to write
      INTEGER :: rank = 2 ! Dataset rank 
 
-     INTEGER :: error, error_n  ! Error flags
+     INTEGER :: error  ! Error flags
      !
      ! MPI definitions and calls.
      !
@@ -54,8 +53,7 @@
      !
      ! Create the file collectively.
      ! 
-     CALL h5fcreate_f(filename, H5F_ACC_TRUNC_F, file_id, error,
-     Caccess_prp = plist_id)
+     CALL h5fcreate_f(filename, H5F_ACC_TRUNC_F, file_id, error,access_prp = plist_id)
      CALL h5pclose_f(plist_id, error)
      !
      ! Create the data space for the  dataset. 
