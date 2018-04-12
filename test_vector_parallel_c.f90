@@ -63,7 +63,7 @@ program main
   ! finalize
   call phdf5_cleanup(dataset_id)
   ! now we try to read it again
-  call phdf5_setup_read(1,dimsg_,.True.,groupname,path,file_id,dataset_id)
+  call phdf5_setup_read(1,dimsg_,.True.,datasetname,path,file_id,dataset_id)
   ! allocate global array
   allocate(global(perrank*blocksize_))
   ! loop over blocks
