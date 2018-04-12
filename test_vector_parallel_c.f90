@@ -8,7 +8,7 @@ program main
   type(block1d) :: testblock, readblock
   character(1024) :: fname
   integer :: nblocks_, blocksize_, matsize_, dimsg_(1)
-  integer :: k, l, p
+  integer :: k, l
   integer(hid_t) :: file_id, dataset_id
   character(1024) :: path, datasetname, groupname
   complex(8), allocatable :: global(:)

@@ -11,6 +11,7 @@ module mod_phdf5
   public phdf5_finalize
   public phdf5_setup_write
   public phdf5_cleanup
+  public phdf5_create_group
 contains
 
 !-------------------------------------------------------------------------------
@@ -232,7 +233,7 @@ contains
   end subroutine
 
 !-------------------------------------------------------------------------------    
-  subroutine hdf5_create_group(fname,path,gname)
+  subroutine phdf5_create_group(file_id,path,gname)
     use hdf5
     implicit none
     integer(hid_t), intent(in) :: file_id
